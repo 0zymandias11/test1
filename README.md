@@ -8,3 +8,5 @@ install react tilt
 replace the src folder
 
 they are all just for frontend;
+U also need to install Node ;
+ 
