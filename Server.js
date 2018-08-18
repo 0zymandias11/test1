@@ -3,6 +3,7 @@ const express = require('express');
 const app =  express();
 const bodyParser=require('body-parser');
 app.use(bodyParser.json());
+
 var knex = require('knex')({
   client: 'mysql',
   connection: {
@@ -12,47 +13,17 @@ var knex = require('knex')({
     database : 'test'
   }
 });
+var d_id=0;;
 knex.select('*').from('users').then(data =>
 	{
 		console.log(data);
 	});
-
-const database ={
-	users :[
-	{ 
-		id : '123',
-		name :'Zack',
-		email :'Zack@gmail.com',
-		passwd :'cookie'
-	},
-	{
-		id : '124',
-		name :'Zoey',
-		email :'Zoey@gmail.com',
-		passwd :'milk'
-	},
-	{
-		id : '125',
-		name :'jim',
-		email :'jim@gmail.com',
-		passwd :'candy'
-	}
-	]
-}
-
 
 app.get('/',(req,res)=>
 {
 res.json("adfsdfdsf");
 	//res.send("it works");
 });
-/*app.post('/Signin/:id',(req,res)=>
-{
-console.log(req.params);
-	//res.send("it works");
-});*/
-
-//Trial
 
 app.post('/Signin/:id',(req,res)=>
 {
@@ -63,41 +34,69 @@ knex('users').where({
 	if(data[0]!=undefined)
 	{
 	if(data[0].id==uid){
-console.log(data);
+		d_id=uid;
+		//flag=true;
+
+knex('submissions').where({
+  u_id: d_id
+}).select('u_id').then(data2=>{
+	if(data2[0]==undefined){
+
+		knex('submissions').insert({u_id: d_id}).then(data =>
+	{
+		//console.log(data);
+	});
+		knex.select('*').from('submissions').then(data =>
+	{
+		console.log(data);
+	});
+	}});
+console.log(data,d_id);
 	return res.json("welcome user "+ uid);
 }
 }
 else
 
  return res.json("wrong input");
-
-
 });
 //console.log(data);
 	//res.send("it works");
 });
 
-
-app.post('/Signin',(req,res)=>
+	app.post('/Home/:id',(req,res)=>
 {
-	const {email , passwd}=req.params;
-let flag=false;
-const user = database.users.map((user) =>{
-	if(user.passwd==passwd && user.email==email){
-		flag=true;
-	
-	return res.json(req.body.passwd);}
-})
-if(flag==false)
-		return res.status(400).json(req.params);
+	console.log(d_id);
 
-
-/*if(req.body.email==database.users[0].email && req.body.passwd==database.users[0].passwd)
+	const q_id=req.params.id;
+	var {a} = req.body;
+console.log(q_id,a);
+if(d_id!=0)
 {
-	console.log(email);
+	knex('answers').where({
+  id: q_id
+}).select('ans').then(data=>{
+console.log(data);
+	if(data[0]!=undefined)
+	{
+	if(data[0].ans==a){
+console.log(data,a);
+knex('submissions')
+.where('u_id','=',d_id)
+.update({
+  	ans1:1
+}).then(data=>{})
+	return res.json("welcome user "+ q_id);
+
 }
 else
-res.json(req.query);*/
-})
+res.json("Wrong answer");
+}
+else
+return res.json("wrong input");
+});
+}
+else
+res.json("wrong");	
+});
 
 app.listen(3001);
